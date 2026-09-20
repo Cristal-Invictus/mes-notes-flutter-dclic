@@ -408,17 +408,22 @@ flutter run
 
 ---
 
-## 🖼️ Wireframes
+## 🖼️ Captures et wireframes
 
-Les interfaces ont été conçues avant leur implémentation afin de définir :
+La documentation visuelle du projet est disponible dans le dossier `docs/`.
 
-1. l'écran de connexion ;
-2. l'écran principal contenant les notes ;
-3. l'écran d'ajout et de modification d'une note.
+- [Architecture de l'application](docs/architecture.md)
+- [Wireframes et captures](docs/wireframes.md)
 
-Les wireframes sont conservés dans la documentation du projet.
+Aperçu rapide :
 
----
+### Wireframe global
+
+![Wireframe global](docs/wireframes/wireframe-mes-notes.png)
+
+### Exemple de capture — écran principal
+
+![Écran principal](docs/wireframes/screenshot-notes-list.png)
 
 
 ## 📚 Documentation complémentaire

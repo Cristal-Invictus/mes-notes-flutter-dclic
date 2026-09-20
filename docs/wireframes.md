@@ -8,141 +8,114 @@ Ils servent de référence pour l'implémentation Flutter.
 
 ---
 
-## 1. Écran de connexion
+## 1. Wireframe global
 
-L'écran de connexion contient :
+Le wireframe principal présente les trois écrans essentiels de l’application :
 
-```text
-Logo Mes Notes
+1. l’écran de connexion ;
+2. l’écran principal avec la liste des notes ;
+3. l’écran d’ajout / modification d’une note.
 
-Mes Notes
-Organisez vos idées simplement
-
-Nom d'utilisateur
-Mot de passe
-
-☐ Se souvenir de moi
-
-[ Se connecter ]
-```
-
-En cas d'erreur :
-
-```text
-Identifiant ou mot de passe incorrect.
-```
-
-### Objectifs UX
-
-L'interface doit être simple, lisible et permettre de comprendre immédiatement l'action attendue.
+![Wireframe global de l'application Mes Notes](wireframes/wireframe-mes-notes.png)
 
 ---
 
-## 2. Écran principal
+## 2. Écran de connexion
 
-Après authentification, l'utilisateur arrive sur l'écran principal.
+L’écran de connexion permet :
 
-```text
-┌──────────────────────────────┐
-│ Mes Notes                  ↪ │
-├──────────────────────────────┤
-│ 🔍 Rechercher une note...    │
-│                              │
-│ ┌──────────────────────────┐ │
-│ │ Titre de la note        │ │
-│ │ Contenu...              │ │
-│ │ Date             ✏️ 🗑️ │ │
-│ └──────────────────────────┘ │
-│                              │
-│                         +    │
-└──────────────────────────────┘
-```
+- la saisie du nom d’utilisateur ;
+- la saisie du mot de passe ;
+- l’option **Se souvenir de moi** ;
+- l’affichage d’un message d’erreur en cas d’échec.
 
-Les actions disponibles sont :
+### Capture de l’application
 
-```text
-Recherche
-Ajout
-Modification
-Suppression
-Déconnexion
-```
+![Capture de l'écran de connexion](wireframes/screenshot-login.png)
+
+### Correspondance avec le wireframe
+
+Cette interface respecte le wireframe prévu :
+
+- présence du logo ;
+- titre **Mes Notes** ;
+- formulaire simple et centré ;
+- bouton **Se connecter** bien visible ;
+- case **Se souvenir de moi**.
 
 ---
 
-## 3. Ajout d'une note
+## 3. Écran principal — Liste des notes
 
-Le bouton `+` ouvre le formulaire de création.
+L’écran principal permet :
 
-```text
-┌──────────────────────────────┐
-│ ← Nouvelle note          ✓   │
-├──────────────────────────────┤
-│                              │
-│ Titre                        │
-│ [________________________]   │
-│                              │
-│ Contenu                      │
-│ [                        ]   │
-│ [                        ]   │
-│ [                        ]   │
-│                              │
-│      [ Enregistrer ]         │
-└──────────────────────────────┘
-```
+- d’afficher les notes existantes ;
+- de rechercher une note ;
+- de modifier ou supprimer une note ;
+- d’ajouter une nouvelle note avec le bouton flottant ;
+- de se déconnecter.
 
-Les deux champs sont obligatoires.
+### Capture de l’application
 
----
+![Capture de l'écran principal avec la liste des notes](wireframes/screenshot-notes-list.png)
 
-## 4. Modification d'une note
+### Correspondance avec le wireframe
 
-La modification reprend le même formulaire.
+L’interface finale reprend les éléments du wireframe :
 
-Les champs sont automatiquement remplis avec les informations existantes.
-
-```text
-Modifier la note
-
-Titre
-[Titre actuel]
-
-Contenu
-[Contenu actuel]
-
-[ Enregistrer ]
-```
+- barre supérieure avec le titre **Mes Notes** ;
+- champ de recherche ;
+- cartes de notes ;
+- bouton flottant d’ajout ;
+- actions de modification et suppression ;
+- icône de déconnexion.
 
 ---
 
-## 5. Suppression
+## 4. Écran de modification d’une note
 
-Une confirmation est affichée avant de supprimer définitivement une note.
+L’écran de formulaire est utilisé pour :
 
-```text
-Supprimer la note ?
+- créer une nouvelle note ;
+- modifier une note existante.
 
-Voulez-vous vraiment supprimer cette note ?
+Il contient :
 
-[ Annuler ]   [ Supprimer ]
-```
+- un champ **Titre** ;
+- un champ **Contenu** ;
+- un bouton **Enregistrer** ;
+- une navigation simple.
+
+### Captures de l’application
+
+#### Première capture
+
+![Capture de modification d'une note - version 1](wireframes/screenshot-edit-note-1.png)
+
+#### Deuxième capture
+
+![Capture de modification d'une note - version 2](wireframes/screenshot-edit-note-2.png)
+
+### Correspondance avec le wireframe
+
+L’écran final respecte bien le wireframe défini :
+
+- structure simple ;
+- hiérarchie claire des champs ;
+- formulaire lisible ;
+- bouton d’enregistrement bien visible ;
+- navigation cohérente avec le reste de l’application.
 
 ---
 
-## 6. Déconnexion
+## 5. Synthèse
 
-Une confirmation est également demandée :
+Les écrans réalisés dans Flutter respectent l’organisation générale prévue au moment du wireframing :
 
-```text
-Déconnexion
+- simplicité de navigation ;
+- cohérence visuelle ;
+- lisibilité ;
+- ergonomie mobile ;
+- respect des fonctionnalités attendues.
 
-Voulez-vous vraiment vous déconnecter ?
-
-[ Annuler ]   [ Se déconnecter ]
-```
-
----
-
-## Correspondance avec l'application
-
-Les interfaces Flutter finales respectent la structure générale définie dans les wireframes tout en appliquant Material Design 3 pour améliorer la lisibilité et l'ergonomie.
+Le résultat final reste fidèle à la maquette tout en intégrant **Material Design 3** pour améliorer l’apparence et l’expérience utilisateur.
