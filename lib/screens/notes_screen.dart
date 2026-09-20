@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 import '../models/note.dart';
 import 'note_form_screen.dart';
+import '../services/session_service.dart';
+import 'login_screen.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -151,6 +153,52 @@ class _NotesScreenState extends State<NotesScreen> {
     await _chargerNotes();
   }
 
+  Future<void> _seDeconnecter() async {
+    final confirmer = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Déconnexion'),
+          content: const Text(
+            'Voulez-vous vraiment vous déconnecter ?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Se déconnecter'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmer != true) {
+      return;
+    }
+
+    await SessionService.clearSession();
+
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+          (route) => false,
+    );
+  }
+
   String _formaterDate(String date) {
     try {
       final parsed = DateTime.parse(date);
@@ -169,17 +217,26 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F9FC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF2585E8),
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'Mes Notes',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF2585E8),
+          foregroundColor: Colors.white,
+          automaticallyImplyLeading: false,
+          title: const Text(
+            'Mes Notes',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          actions: [
+            IconButton(
+              tooltip: 'Se déconnecter',
+              onPressed: _seDeconnecter,
+              icon: const Icon(
+                Icons.logout,
+              ),
+            ),
+          ],
         ),
-      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF2585E8),
         foregroundColor: Colors.white,

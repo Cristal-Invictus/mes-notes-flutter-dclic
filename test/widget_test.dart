@@ -3,7 +3,9 @@ import 'package:mes_notes/main.dart';
 
 void main() {
   testWidgets('L’écran de connexion s’affiche', (WidgetTester tester) async {
-    await tester.pumpWidget(const MesNotesApp());
+    await tester.pumpWidget(const MesNotesApp(
+      isRemembered: false,
+    ));
 
     expect(find.text('Mes Notes'), findsOneWidget);
     expect(find.text('Se connecter'), findsOneWidget);

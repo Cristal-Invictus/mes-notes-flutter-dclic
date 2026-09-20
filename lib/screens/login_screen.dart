@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
+import '../services/session_service.dart';
 import 'notes_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -57,6 +58,14 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (authentifie) {
+        await SessionService.setRemembered(
+          _rememberMe,
+        );
+
+        if (!mounted) {
+          return;
+        }
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
