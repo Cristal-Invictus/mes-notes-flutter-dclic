@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -9,6 +12,10 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._();
 
   static Database? _database;
+
+  // =========================================================
+  // ACCÈS À LA BASE DE DONNÉES
+  // =========================================================
 
   Future<Database> get database async {
     if (_database != null) {
@@ -27,17 +34,22 @@ class DatabaseHelper {
       'mes_notes.db',
     );
 
-    return await openDatabase(
+    return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDatabase,
+      onUpgrade: _upgradeDatabase,
     );
   }
 
+  // =========================================================
+  // CRÉATION DE LA BASE
+  // =========================================================
+
   Future<void> _createDatabase(
-    Database db,
-    int version,
-  ) async {
+      Database db,
+      int version,
+      ) async {
     await db.execute('''
       CREATE TABLE notes(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,17 +58,127 @@ class DatabaseHelper {
         date_creation TEXT NOT NULL
       )
     ''');
+
+    await _createUsersTable(db);
   }
+
+  // =========================================================
+  // MIGRATION VERSION 1 → VERSION 2
+  // =========================================================
+
+  Future<void> _upgradeDatabase(
+      Database db,
+      int oldVersion,
+      int newVersion,
+      ) async {
+    if (oldVersion < 2) {
+      await _createUsersTable(db);
+    }
+  }
+
+  // =========================================================
+  // TABLE UTILISATEURS
+  // =========================================================
+
+  Future<void> _createUsersTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        salt TEXT NOT NULL
+      )
+    ''');
+
+    // Compte administrateur de démonstration.
+    const username = 'admin';
+    const password = '1234';
+
+    // Sel utilisé pour le compte de démonstration.
+    const salt = '26e270df7b4e40501a3b75c1f4f02ff2';
+
+    final passwordHash = _hashPassword(
+      password,
+      salt,
+    );
+
+    await db.insert(
+      'users',
+      {
+        'username': username,
+        'password_hash': passwordHash,
+        'salt': salt,
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  // =========================================================
+  // HASH DU MOT DE PASSE
+  // =========================================================
+
+  String _hashPassword(
+      String password,
+      String salt,
+      ) {
+    final bytes = utf8.encode(
+      '$salt$password',
+    );
+
+    return sha256.convert(bytes).toString();
+  }
+
+  // =========================================================
+  // AUTHENTIFICATION
+  // =========================================================
+
+  Future<bool> authentifierUtilisateur(
+      String username,
+      String password,
+      ) async {
+    final db = await database;
+
+    final result = await db.query(
+      'users',
+      where: 'username = ?',
+      whereArgs: [username],
+      limit: 1,
+    );
+
+    if (result.isEmpty) {
+      return false;
+    }
+
+    final user = result.first;
+
+    final salt = user['salt'] as String;
+    final storedHash = user['password_hash'] as String;
+
+    final enteredHash = _hashPassword(
+      password,
+      salt,
+    );
+
+    return enteredHash == storedHash;
+  }
+
+  // =========================================================
+  // CREATE — AJOUTER UNE NOTE
+  // =========================================================
 
   Future<int> ajouterNote(Note note) async {
     final db = await database;
 
-    return await db.insert(
+    return db.insert(
       'notes',
       note.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
+  // =========================================================
+  // READ — RÉCUPÉRER LES NOTES
+  // =========================================================
 
   Future<List<Note>> obtenirNotes() async {
     final db = await database;
@@ -66,13 +188,21 @@ class DatabaseHelper {
       orderBy: 'id DESC',
     );
 
-    return maps.map((map) => Note.fromMap(map)).toList();
+    return maps
+        .map(
+          (map) => Note.fromMap(map),
+    )
+        .toList();
   }
+
+  // =========================================================
+  // UPDATE — MODIFIER UNE NOTE
+  // =========================================================
 
   Future<int> modifierNote(Note note) async {
     final db = await database;
 
-    return await db.update(
+    return db.update(
       'notes',
       note.toMap(),
       where: 'id = ?',
@@ -80,10 +210,14 @@ class DatabaseHelper {
     );
   }
 
+  // =========================================================
+  // DELETE — SUPPRIMER UNE NOTE
+  // =========================================================
+
   Future<int> supprimerNote(int id) async {
     final db = await database;
 
-    return await db.delete(
+    return db.delete(
       'notes',
       where: 'id = ?',
       whereArgs: [id],

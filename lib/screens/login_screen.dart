@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../database/database_helper.dart';
 import 'notes_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,6 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  bool _isLoading = false;
+
   String? _errorMessage;
 
   @override
@@ -24,25 +27,63 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
+  Future<void> _login() async {
     final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
+    final password = _passwordController.text;
 
-    if (username == 'admin' && password == '1234') {
+    if (username.isEmpty || password.isEmpty) {
       setState(() {
-        _errorMessage = null;
+        _errorMessage =
+        'Veuillez renseigner le nom d’utilisateur et le mot de passe.';
       });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const NotesScreen(),
-        ),
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final authentifie =
+      await DatabaseHelper.instance.authentifierUtilisateur(
+        username,
+        password,
       );
-    } else {
+
+      if (!mounted) {
+        return;
+      }
+
+      if (authentifie) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const NotesScreen(),
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage =
+          'Identifiant ou mot de passe incorrect.';
+        });
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
-        _errorMessage = 'Identifiant ou mot de passe incorrect.';
+        _errorMessage =
+        'Une erreur est survenue lors de la connexion.';
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -74,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
+
                   const Text(
                     'Mes Notes',
                     style: TextStyle(
@@ -81,7 +123,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
                   const Text(
                     'Organisez vos idées simplement',
                     style: TextStyle(
@@ -89,7 +133,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.black54,
                     ),
                   ),
+
                   const SizedBox(height: 36),
+
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -107,25 +153,44 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         TextField(
                           controller: _usernameController,
+                          enabled: !_isLoading,
+                          textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
                             labelText: 'Nom d’utilisateur',
-                            prefixIcon: const Icon(Icons.person_outline),
+                            prefixIcon: const Icon(
+                              Icons.person_outline,
+                            ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius:
+                              BorderRadius.circular(14),
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 18),
+
                         TextField(
                           controller: _passwordController,
+                          enabled: !_isLoading,
                           obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) {
+                            if (!_isLoading) {
+                              _login();
+                            }
+                          },
                           decoration: InputDecoration(
                             labelText: 'Mot de passe',
-                            prefixIcon: const Icon(Icons.lock_outline),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                            ),
                             suffixIcon: IconButton(
-                              onPressed: () {
+                              onPressed: _isLoading
+                                  ? null
+                                  : () {
                                 setState(() {
-                                  _obscurePassword = !_obscurePassword;
+                                  _obscurePassword =
+                                  !_obscurePassword;
                                 });
                               },
                               icon: Icon(
@@ -135,27 +200,38 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius:
+                              BorderRadius.circular(14),
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 12),
+
                         Row(
                           children: [
                             Checkbox(
                               value: _rememberMe,
-                              onChanged: (value) {
+                              onChanged: _isLoading
+                                  ? null
+                                  : (value) {
                                 setState(() {
-                                  _rememberMe = value ?? false;
+                                  _rememberMe =
+                                      value ?? false;
                                 });
                               },
                             ),
-                            const Text('Se souvenir de moi'),
+                            const Text(
+                              'Se souvenir de moi',
+                            ),
                           ],
                         ),
+
                         if (_errorMessage != null) ...[
                           const SizedBox(height: 8),
                           Row(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
                             children: [
                               const Icon(
                                 Icons.error_outline,
@@ -173,17 +249,31 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ],
+
                         const SizedBox(height: 18),
+
                         SizedBox(
                           width: double.infinity,
                           height: 52,
                           child: FilledButton(
-                            onPressed: _login,
-                            child: const Text(
+                            onPressed:
+                            _isLoading ? null : _login,
+                            child: _isLoading
+                                ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child:
+                              CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : const Text(
                               'Se connecter',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight:
+                                FontWeight.w600,
                               ),
                             ),
                           ),
@@ -191,7 +281,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 24),
+
                   const Text(
                     'Une idée aujourd’hui,\nun meilleur demain !',
                     textAlign: TextAlign.center,
