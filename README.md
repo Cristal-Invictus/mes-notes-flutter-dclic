@@ -420,6 +420,16 @@ Les wireframes sont conservés dans la documentation du projet.
 
 ---
 
+
+## 📚 Documentation complémentaire
+
+- [Architecture de l'application](docs/architecture.md)
+- [Wireframes et conception des interfaces](docs/wireframes.md)
+
+Les captures et images de conception peuvent être ajoutées dans le dossier `docs/wireframes/`.
+
+---
+
 ## 📌 État du projet
 
 ```text
